@@ -1,0 +1,36 @@
+{
+  "grnNumber": "CI4000020234",
+  "poNumber": "CI4PO05788",
+  "grnDate": "2026-03-24",
+  "vendorName": "M/s AFP",
+  "invoiceNumber": "IN25MH2504251",
+  "invoiceDate": "2026-03-24",
+  "items": [
+    {
+      "itemCode": "11423",
+      "description": "Spicy Veg Momos 24.0 Pieces",
+      "receivedQuantity": 50
+    },
+    {
+      "itemCode": "11797",
+      "description": "Meatigo Hot Wings 250.0 g",
+      "receivedQuantity": 75
+    },
+    {
+      "itemCode": "18003",
+      "description": "Meatigo Chicken Curry Cut Skinless Frozen 450.0 g",
+      "receivedQuantity": 30
+    },
+    {
+      "itemCode": "18004",
+      "description": "Meatigo Chicken Boneless Breast Frozen 450.0 g",
+      "receivedQuantity": 30
+    },
+    {
+      "itemCode": "205950",
+      "description": "Pork Pepperoni Salami 100.0 g",
+      "receivedQuantity": 40
+    }
+  ]
+}
+

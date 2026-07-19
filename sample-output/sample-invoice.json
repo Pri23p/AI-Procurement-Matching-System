@@ -1,0 +1,39 @@
+{
+  "invoiceNumber": "IN25MH2504251",
+  "poNumber": "CI4PO05788",
+  "invoiceDate": "2026-03-24",
+  "vendorName": "Ample Foods Private Limited",
+  "items": [
+    {
+      "itemCode": "FG-P-F-0503",
+      "sku": "11423",
+      "description": "PSM Cheesy Spicy Vegetable Momos 24Pcs",
+      "quantity": 50
+    },
+    {
+      "itemCode": "FG-M-F-1703",
+      "sku": "11797",
+      "description": "Meatigo RTC Meatigo Hot Wings 250g",
+      "quantity": 75
+    },
+    {
+      "itemCode": "FG-M-F-0620",
+      "sku": "18003",
+      "description": "Meatigo Chicken Curry Cuts 450g (5%)",
+      "quantity": 30
+    },
+    {
+      "itemCode": "FG-M-F-0619",
+      "sku": "18004",
+      "description": "Meatigo Chicken Boneless Breast 450g (5%)",
+      "quantity": 30
+    },
+    {
+      "itemCode": "FG-P-F-0237",
+      "sku": "205950",
+      "description": "PSM Frozen Pork Pepperoni Salami 100g",
+      "quantity": 40
+    }
+  ]
+}
+

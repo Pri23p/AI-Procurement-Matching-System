@@ -1,0 +1,107 @@
+{
+  "info": {
+    "name": "Finifi Three-Way Match API",
+    "_postman_id": "e6c7ad0e-0dd7-4e75-9a15-7b5d1f4f5f42",
+    "description": "Collection for the Finifi backend assignment. Set the `baseUrl` variable before sending requests. For the upload request, choose a local file in Postman for the `file` field.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Upload Document",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "documentType",
+              "value": "po",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/documents/upload",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "documents",
+            "upload"
+          ]
+        },
+        "description": "Choose a PDF, PNG, or JPEG file for the `file` field and set `documentType` to `po`, `grn`, or `invoice`."
+      }
+    },
+    {
+      "name": "Get Parsed Document",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/documents/{{documentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "documents",
+            "{{documentId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Match Result",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/match/{{poNumber}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "match",
+            "{{poNumber}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "documentId",
+      "value": "replace-with-document-id"
+    },
+    {
+      "key": "poNumber",
+      "value": "CI4PO05788"
+    }
+  ]
+}

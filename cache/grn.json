@@ -1,0 +1,27 @@
+{
+  "grnNumber": "CI4000020234",
+  "poNumber": "CI4PO05788",
+  "grnDate": "2026-03-16",
+  "vendorName": "CLOUDSTORE RETAIL PRIVATE LIMITED",
+  "invoiceNumber": "IN25MH2504251",
+  "invoiceDate": "2026-03-16",
+  "items": [
+    { "itemCode": "11423", "description": "Cheesy Spicy Veg Momos 24.0 Pieces", "quantity": 50 },
+    { "itemCode": "11797", "description": "Meatigo Hot Wings 250.0 g", "quantity": 75 },
+    { "itemCode": "18003", "description": "Meatigo Chicken Curry Cut Skinless Frozen 450.0 g", "quantity": 120 },
+    { "itemCode": "18004", "description": "Meatigo Chicken Boneless Breast Frozen 450.0 g", "quantity": 540 },
+    { "itemCode": "414867", "description": "Chinese Veg Spring Rolls 240.0 g", "quantity": 175 },
+    { "itemCode": "253430", "description": "Pork Plain Salami 200.0 g", "quantity": 75 },
+    { "itemCode": "4459", "description": "Original Chicken Momos 24.0 Pieces", "quantity": 475 },
+    { "itemCode": "4460", "description": "Spicy Chicken Momos 24.0 Pieces", "quantity": 425 },
+    { "itemCode": "4461", "description": "Veg & Paneer Momos 24.0 Pieces", "quantity": 115 },
+    { "itemCode": "453259", "description": "Cheese & Onion Sausage 250.0 g", "quantity": 40 },
+    { "itemCode": "469735", "description": "Meatigo Everyday Chicken Breast 150.0 g", "quantity": 90 },
+    { "itemCode": "4699", "description": "Pork Sausage 250.0 g", "quantity": 420 },
+    { "itemCode": "4701", "description": "Pork Breakfast Bacon 150.0 g", "quantity": 36 },
+    { "itemCode": "790919", "description": "Meatigo Everyday Fish Fillet 200.0 g", "quantity": 30 },
+    { "itemCode": "4694", "description": "Original Chicken Momos 10.0 Pieces", "quantity": 450 },
+    { "itemCode": "4697", "description": "Veg & Paneer Momos 10.0 Pieces", "quantity": 400 },
+    { "itemCode": "4700", "description": "Pork Ham 200.0 g", "quantity": 50 }
+  ]
+}

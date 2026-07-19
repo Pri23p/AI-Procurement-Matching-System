@@ -1,0 +1,14 @@
+{
+  "invoiceNumber": "IN25MH2504251",
+  "poNumber": "CI4PO05788",
+  "invoiceDate": "2026-03-16",
+  "vendorName": "CLOUDSTORE RETAIL PRIVATE LIMITED",
+  "items": [
+    { "itemCode": "FG-M-F-1703", "description": "Meatigo Hot Wings 250g", "quantity": 75 },
+    { "itemCode": "FG-M-F-0620", "description": "Meatigo Chicken Curry Cuts 450g (5%)", "quantity": 120 },
+    { "itemCode": "FG-M-F-1729", "description": "Meatigo RTC Everyday Fish Fillet 200g", "quantity": 30 },
+    { "itemCode": "FG-P-F-0512", "description": "Spicy Chicken Momos 24pcs", "quantity": 4 },
+    { "itemCode": "FG-P-F-0505", "description": "Original Chicken Momos 24pcs", "quantity": 400 },
+    { "itemCode": "FG-P-F-0514", "description": "Veg & Paneer Momos 24pcs", "quantity": 100 }
+  ]
+}

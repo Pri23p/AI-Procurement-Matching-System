@@ -1,0 +1,68 @@
+{
+  "poNumber": "CI4PO05788",
+  "status": "mismatch",
+  "reasons": [
+    {
+      "code": "invoice_date_after_po_date",
+      "message": "Invoice IN25MH2504251 is dated after PO CI4PO05788."
+    },
+    {
+      "code": "item_missing_in_po",
+      "itemKey": "code:111423",
+      "reference": "111423",
+      "message": "GRN item 111423 is not present in the PO."
+    },
+    {
+      "code": "item_missing_in_po",
+      "itemKey": "code:16023200",
+      "reference": "16023200",
+      "message": "Invoice item 16023200 is not present in the PO."
+    },
+    {
+      "code": "invoice_qty_exceeds_grn_qty",
+      "itemKey": "code:16021000",
+      "reference": "16021000",
+      "message": "Invoiced quantity for item 16021000 exceeds the total GRN quantity."
+    }
+  ],
+  "summary": {
+    "poCount": 1,
+    "grnCount": 1,
+    "invoiceCount": 1,
+    "poItemCount": 40,
+    "grnItemCount": 31,
+    "invoiceItemCount": 31
+  },
+  "itemResults": [
+    {
+      "itemKey": "code:11423",
+      "reference": "11423",
+      "description": "Cheesy Spicy Veg Momos 24.0 Pieces",
+      "poQuantity": 50,
+      "totalReceivedQuantity": 50,
+      "totalInvoicedQuantity": 50,
+      "fullyReceived": true,
+      "fullyInvoiced": true
+    },
+    {
+      "itemKey": "code:11797",
+      "reference": "11797",
+      "description": "Meatigo Hot Wings 250.0 g",
+      "poQuantity": 75,
+      "totalReceivedQuantity": 75,
+      "totalInvoicedQuantity": 75,
+      "fullyReceived": true,
+      "fullyInvoiced": true
+    },
+    {
+      "itemKey": "code:18003",
+      "reference": "18003",
+      "description": "Meatigo Chicken Curry Cut Skinless Frozen 450.0 g",
+      "poQuantity": 120,
+      "totalReceivedQuantity": 30,
+      "totalInvoicedQuantity": 30,
+      "fullyReceived": false,
+      "fullyInvoiced": false
+    }
+  ]
+}

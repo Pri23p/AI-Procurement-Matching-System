@@ -1,0 +1,79 @@
+openapi: 3.0.3
+info:
+  title: Finifi Three-Way Match API
+  version: 1.0.0
+  description: Backend assignment implementation for PO, GRN, and Invoice matching.
+servers:
+  - url: http://localhost:4000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+  /documents/upload:
+    post:
+      summary: Upload a PO, GRN, or Invoice document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - documentType
+              properties:
+                file:
+                  type: string
+                  format: binary
+                documentType:
+                  type: string
+                  enum: [po, grn, invoice]
+      responses:
+        '202':
+          description: Document upload accepted and task registered for processing.
+  /documents/{id}:
+    get:
+      summary: Get a parsed document by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Parsed document
+        '404':
+          description: Document not found
+  /tasks/{id}:
+    get:
+      summary: Get document processing background task status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current background task status
+        '404':
+          description: Task not found
+  /match/{poNumber}:
+    get:
+      summary: Get the latest three-way match result by PO number
+      parameters:
+        - in: path
+          name: poNumber
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Match result
+        '404':
+          description: No documents found for that PO number
+
