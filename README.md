@@ -2,128 +2,111 @@
 
 Backend assignment for uploading and parsing Purchase Orders, GRNs, and Invoices, storing the parsed data in MongoDB, and computing an item-level three-way match by `poNumber`.
 
-## Production-Grade Architecture (100/100 Upgrade)
+---
 
-The match engine has been upgraded to a resilient, enterprise-grade architecture that resolves API rate limit errors, noisy LLM outputs, cross-document item key mismatches, and request timeout risks.
-
-### 1. Asynchronous Job Processing Queue
-Instead of processing heavy document extractions synchronously (which causes HTTP 504 timeouts for large files), the upload endpoint immediately returns `202 Accepted` with a background Task ID. A database-backed worker process polls for pending tasks, performs the extraction, and recalculates the derived match status asynchronously.
-* Polling endpoint: `GET /tasks/:id`
-
-### 2. Runtime Zod Schema Validation
-Noisy or malformed LLM responses are validated at runtime using structured **Zod schemas** before writing document records to MongoDB. If validation fails, it throws clear, structured validation errors.
-
-### 3. Database Product Catalog Mapping & Cache
-POs (HSN codes), GRNs (internal SKUs), and Invoices (Vendor SKUs) naturally use different code identifiers. The application features a `ProductMapping` collection that automatically maps cross-document SKU and description aliases to their canonical SKU. To maintain high performance, mappings are loaded into a fast, in-memory cache at startup, allowing synchronous lookups in the normalizer.
-
-### 4. Rate-Limit Exponential Backoff
-The parser wrapper automatically intercepts HTTP 429 Rate Limit responses from the LLM provider, extracting the `retry-after` header to dynamically wait and back off before retrying the job.
+## 1. Approach
+The service takes uploaded procurement files (PO, GRN, and Invoices) and handles them in a decoupled, state-derived manner:
+- **Asynchronous Task Queue**: Files are uploaded instantly (HTTP 202) and registered as background jobs. A MongoDB-backed worker polls and processes the files asynchronously (using text/image extractors and LLM providers) to prevent gateway timeouts.
+- **State Recalculation**: Instead of carrying complex workflow history, we treat each uploaded file as an independent event. Once a document is parsed, we load all stored files under that `poNumber` and derive/update the matching state cleanly in MongoDB.
+- **Alias-Based Normalization**: Solves the issue where POs, GRNs, and Invoices use different identifier code formats (HSN codes, internal SKUs, and Vendor codes). Mappings are seeded at connection time and checked instantly using an in-memory cache at runtime.
 
 ---
 
-## Data Model
+## 2. Data Model
 
 ### `Task`
-Tracks document extraction jobs:
+Tracks background job states:
 - `status` (`pending`, `processing`, `completed`, `failed`)
-- `documentType`
-- `sourceFile`
+- `documentType` (`po`, `grn`, `invoice`)
+- `sourceFile` (original filename, storage path, file size)
 - `poNumber`
-- `documentId` (reference to the created document)
-- `error` (error message and stack if failed)
+- `documentId` (reference to parsed document object)
+- `error` (error diagnostics if failed)
 
 ### `Document`
-Stored in MongoDB with:
+Persists the raw and cleaned results of each uploaded file:
 - `documentType`
 - `poNumber`
 - `documentNumber`
 - `documentDate`
 - `vendorName`
-- `items[]`
-- `normalizedData`
-- `rawExtraction`
-- `sourceFile`
-- `extractionProvider`
+- `items` (`[{ itemKey, itemCode, sku, description, quantity, unit }]`)
+- `rawExtraction` (exact JSON received from the LLM)
+- `normalizedData` (structured metadata cleanup)
 
 ### `MatchResult`
-Stored per `poNumber` with:
-- `status`
-- `reasons[]`
-- `linkedDocuments`
-- `itemResults[]`
-- `summary`
-- `lastEvaluatedAt`
+A cached derived snapshot computed per `poNumber`:
+- `status` (`matched`, `partially_matched`, `mismatch`, `insufficient_documents`)
+- `reasons` (collection of matched warnings and reasons)
+- `linkedDocuments` (summarized list of parsed PO, GRN, and Invoice files)
+- `itemResults` (item-level matching grid showing poQuantity, totalReceivedQuantity, totalInvoicedQuantity, and status)
 
 ---
 
-## Parsing Flow
-
-1. The file upload is accepted through `multer` and saved to disk.
-2. A pending `Task` record is created, and the client receives a `202 Accepted` response with the task ID.
-3. The background worker picks up the task and extracts text from the PDF.
-4. The text is sent to Groq with customized prompt instructions for PO/GRN/Invoice SKU formatting.
-5. The raw JSON is validated against Zod schemas.
+## 3. Parsing Flow
+1. File is uploaded to local disk via `multer`.
+2. A database `Task` is registered and returns a `202 Accepted` response with the task ID.
+3. The background worker picks up the task, extracts text from the PDF, and sends it to the Groq API.
+4. Prompt instructions restrict Groq to return raw JSON only and guide it to extract unique SKU identifiers instead of shared HSN numbers.
+5. The extracted payload is validated against Zod schemas.
 6. Mappings resolve external aliases (HSN, vendor codes) to internal SKUs.
 7. The Document record is created and the match result is refreshed for the extracted `poNumber`.
 
 ---
 
-## Matching Logic
+## 4. Matching Logic
+Matching operates at the item level by querying the Product Mapping cache first, then falling back to signature keyword description checks:
+- **Rules evaluated**:
+  - GRN quantity must not exceed PO quantity.
+  - Invoice quantity must not exceed PO quantity.
+  - Invoice quantity must not exceed total GRN quantity.
+  - Invoice date must not be after PO date.
+  - GRN or invoice items missing from the PO are flagged.
+  - Multiple PO documents for the same `poNumber` are flagged as `duplicate_po`.
+- **Match Status**:
+  - `mismatch`: One or more hard validation rules fail.
+  - `insufficient_documents`: Missing PO, GRN, or Invoice records.
+  - `matched`: All documents exist and quantities are 100% fulfilled without errors.
+  - `partially_matched`: All documents exist, no errors are present, but quantities are only partially fulfilled.
 
-Rules implemented:
-- GRN quantity must not exceed PO quantity
-- Invoice quantity must not exceed PO quantity
-- Invoice quantity must not exceed total GRN quantity
-- Invoice date must not be after PO date
-- GRN or invoice items missing from the PO are flagged
-- Multiple PO documents for the same `poNumber` are flagged as `duplicate_po`
+---
 
-Match Status:
-- `mismatch`: Hard validation failure.
-- `insufficient_documents`: Missing PO, GRN, or Invoice.
-- `matched`: All documents present and quantities fully fulfilled.
-- `partially_matched`: All documents present, quantities are partially fulfilled, and no validation failures.
+## 5. Out-of-Order Uploads
+Since each document is saved independently, documents can be uploaded in any sequence (e.g., Invoice -> GRN -> PO). Once a new file completes processing, the engine fetches all stored documents matching the `poNumber` and recomputes the derived `MatchResult` state. This makes uploads safe to retry, self-healing, and sequence-agnostic.
+
+---
+
+## 6. Assumptions
+- One uploaded file represents exactly one Purchase Order, GRN, or Invoice.
+- `poNumber` is present and extractable on all documents.
+- PDFs either contain extractable text or can be sent to LLM vision APIs as images.
+- Date comparisons are strict (invoice date <= PO date), matching the assignment spec literally.
+
+---
+
+## 7. Tradeoffs
+- **MongoDB-Backed Queue**: Chosen for simplicity in local setups instead of using Redis and BullMQ, keeping deployment configuration down to a single MongoDB instance.
+- **In-Memory Cache**: Loads the product mappings database in memory at startup. Very fast for lookups and keeps the normalizer synchronous, but would need cache synchronization (e.g. PubSub) in a horizontally scaled multi-instance setup.
+
+---
+
+## 8. What I Would Improve With More Time
+- Implement request tracing and authentication middleware.
+- Add document pagination and user dashboards.
+- Deploy uploads directly to cloud storage (S3) instead of local folders.
+- Add user-facing screens to manually link and resolve items that fail fuzzy keyword matching.
 
 ---
 
 ## API Usage Examples
 
-Swagger/OpenAPI is available at [docs/openapi.yaml](docs/openapi.yaml), Swagger UI is served at `http://localhost:4000/api-docs`, and a Postman collection is included at [docs/Finifi.postman_collection.json](docs/Finifi.postman_collection.json).
-
-Upload a document (Immediate Accept):
-```bash
-curl -X POST http://localhost:4000/documents/upload \
-  -F "documentType=po" \
-  -F "file=@C:\path\to\your\po.pdf"
-```
-
-Check background task status:
-```bash
-curl http://localhost:4000/tasks/<taskId>
-```
-
-Get the latest three-way match result:
-```bash
-curl http://localhost:4000/match/CI4PO05788
-```
-
----
-
-## Local Caching for Testing
-To ensure developers do not hit external rate limits during evaluation, the parser includes a local fallback folder under `cache/` (`cache/po.json`, `cache/grn.json`, `cache/invoice.json`). If the uploaded file name matches, it loads the pre-aligned cached extraction instantly.
-
----
-
-## Run Locally
-
-```bash
-copy .env.example .env
-npm install
-npm test
+{{ ... }}
 npm start
 ```
 
 Set `MONGODB_URI` and `GROQ_API_KEY` in `.env` before starting the server.
+
+---
 
 ## Verification
 
