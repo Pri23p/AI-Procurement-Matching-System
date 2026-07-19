@@ -1,4 +1,4 @@
-# Finifi Three-Way Match Engine
+# AI-Based Three-Way Match Engine
 
 An enterprise-ready three-way matching service designed to align Purchase Orders, Goods Received Notes (GRN), and Invoices at the line-item level. The system uses a decoupled, event-driven, state-derived architecture built with Node.js, Express, MongoDB, and Groq (LLM structured extraction).
 
